@@ -6,7 +6,7 @@
 # test na dwoch trzech osobach - czy zwraca dobre pliki dane i dziala
 # obrona projektu - wylumaczyc jak dla czego dziala, specka i kod, kto za co odpowiadal
 
-# krotki opis i temat: zaakceptowany do piatku (wyslac propo we wt albo sr)
+# krotki opis i temat: zaakceptowany do piatku (wyslac propo we wt albo sr) do 23:59 14.05
 # 31.05 specyfikacja skonczona
 #   pisanie proceur, testowanie
 
