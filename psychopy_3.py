@@ -16,10 +16,15 @@ def show_text(info, win, keys=["space"]):
     reactions(keys)
 
 
-def part_of_experiment(n_trials, keys, experiment):
+def part_of_experiment(n_trials, keys, experiment, fix_time, fix_stim):
     for i in range(n_trials):
         stim_type = random.choice(list(stim.keys()))
         print(stim_type)
+
+        fix_stim.draw()
+        window.flip()
+        core.wait(fix_time)
+
         stim[stim_type].draw()
         window.callOnFlip(clock.reset)
         window.flip()
@@ -53,6 +58,7 @@ if __name__ == "__main__":
         "left": visual.TextStim(win=window, text="L", height=40),
         "right": visual.TextStim(win=window, text="R", height=40)
     }
+    stim_fixation = visual.TextStim(win=window, text="+", height=40)
 
     inst_tr = visual.TextStim(win=window, text="instrukcja", height=20)
     inst_exp = visual.TextStim(win=window, text="eksperyment", height=20)
@@ -60,11 +66,23 @@ if __name__ == "__main__":
 
     # TRAINING
     show_text(info=inst_tr, win=window)
-    part_of_experiment(N_TRIALS_TRAINING, REACTION_KEYS, experiment=False)
+    part_of_experiment(
+        N_TRIALS_TRAINING,
+        REACTION_KEYS,
+        experiment=False,
+        fix_stim=stim_fixation,
+        fix_time=2
+    )
 
     # EXPERIMENT
     show_text(info=inst_exp, win=window)
-    part_of_experiment(N_TRIALS_EXPERIMENT, REACTION_KEYS, experiment=True)
+    part_of_experiment(
+        N_TRIALS_EXPERIMENT,
+        REACTION_KEYS,
+        experiment=True,
+        fix_stim=stim_fixation,
+        fix_time=2
+    )
 
     # THE END
     show_text(info=inst_end, win=window)
