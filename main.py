@@ -13,5 +13,8 @@
 # obrona projektu do konca czerwca (sami ustalic termin) (trwa 30min okolo)
 # 24h przed obrona - dostarczyc podzial pracy i projekt
 
+# https://www.psytoolkit.org/experiment-library/stopsignal.html
+# https://www.millisecond.com/download/library/stopsignaltask/
+
 if __name__ == "__main__":
     pass
