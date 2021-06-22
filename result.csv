@@ -1,11 +1,6 @@
 NR,EXPERIMENT,ACC,RT,TRIAL_TYPE,REACTION
-1,False,True,0.6872218999997131,right,right
-2,False,True,0.2880713000013202,left,left
-1,True,True,0.4013428999987809,left,left
-2,True,True,0.2694621000009647,left,left
-3,True,False,0.2532644999992044,right,left
-4,True,False,0.3234984999999142,left,right
-5,True,True,0.4766947000007349,left,left
-6,True,True,0.6100306000007549,left,left
-7,True,True,0.36600039999939327,left,left
-8,True,True,0.2931621999996423,left,left
+1,False,True,0.9487408999993932,right,right
+1,True,True,0.5297753999984707,left,left
+2,True,True,0.5338080000001355,right,right
+3,True,False,0.3994836999991094,right,left
+4,True,True,0.5103964999998425,right,right
