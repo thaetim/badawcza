@@ -20,12 +20,6 @@ from psychopy import visual, core, event
 import random
 import csv
 
-# INSTRUCTIONS
-instr_trn1 = """Twoim zadaniem jest jak najszybsze naciśnięcie klawisza A, gdy zobaczysz strzałkęw lewo, lub klawisza L, gdy zobaczysz strzałkę w prawo. Czasu na decyzję jest niewiele, test wymaga skupienia, szybkich i trafnych reakcji.\n\nPrzed Tobą sesja treningowa, składająca się z 15 prób.\nNaciśnij klawisz SPACJA aby rozpocząć trening."""
-instr_trn2 = """Czas na kolejny etap. Zasady pozostają te same, z tym że gdy zobaczysz kwadratową obwódkę wokół strzałki, Twoim zadaniem jest NIE naciśnięcie żadnego z klawiszy. Jest to spore utrudnienie.\n\nPrzed Tobą ostatnia sesja treningowa, składająca sięz 20 prób.\nNaciśnij klawisz SPACJA aby rozpocząć trening."""
-instr_exp1 = """To już koniec etapu treningowego. Przed Tobą właściwa część eksperymentu, składają się z 6 bloków po 120 prób każdy. Między każdym z bloków możliwa jest przerwa. Powodzenia!\nNaciśnij klawisz SPACJA aby rozpocząć test."""
-instr_exp2 = """Przerwa nr n (jescze 6-n bloków testowych).\nNaciśnij klawisz SPACJA aby kontynuować."""
-instr_end = """Dziękujemy za udział w badaniu."""
 
 def reactions(key_list):
     event.clearEvents()
@@ -33,85 +27,113 @@ def reactions(key_list):
     return keys[0]
 
 
-def show_text(info, win, keys=["space"]):
-    info.draw()
+def show_text(text, win, keys=["space"]):
+    visual.TextStim(win=window, text=text, height=20).draw()
     win.flip()
     reactions(keys)
 
 
-def part_of_experiment(n_trials, keys, experiment, fix_time, fix_stim):
+def experiment_block(n_trials, keys, experiment, fix_time, fix_stim, win):
     for i in range(n_trials):
         stim_type = random.choice(list(stim.keys()))
         print(stim_type)
 
         fix_stim.draw()
-        window.flip()
+        win.flip()
         core.wait(fix_time)
 
         stim[stim_type].draw()
-        window.callOnFlip(clock.reset)
-        window.flip()
+        win.callOnFlip(clock.reset)
+        win.flip()
 
         key = reactions(keys)
         rt = clock.getTime()
 
         acc = stim_type == key
-        RESULTS.append([i+1, experiment, acc, rt, stim_type, key])
+        RESULTS.append([i + 1, experiment, acc, rt, stim_type, key])
 
 
 if __name__ == "__main__":
 
-    # initialization
-    N_TRIALS_TRAINING = 1
-    N_TRIALS_EXPERIMENT = 4
-    REACTION_KEYS = ["left", "right"]
+    # CONFIGURATION
+    FIX_TIME = 0.4
+
+    N_TRN_A_TRIALS = 4  # FIXME: 15
+    N_TRN_B_TRIALS = 9  # FIXME: 27
+    N_EXP_A_BLOCKS = 3  # FIXME: 6
+    N_EXP_A_TRIALS = 9  # FIXME: 120
+
+    REACTION_KEYS = ["a", "l"]
     RESULTS = [
         ["NR", "EXPERIMENT", "ACC", "RT", "TRIAL_TYPE", "REACTION"]
     ]
 
+    # INSTRUCTION TEXTS
+    instr_trn_A = f"""Twoim zadaniem jest jak najszybsze naciśnięcie klawisza {REACTION_KEYS[0]}, gdy zobaczysz strzałkę w lewo, lub klawisza {REACTION_KEYS[1]}, gdy zobaczysz strzałkę w prawo. Czasu na decyzję jest niewiele, test wymaga skupienia, szybkich i trafnych reakcji.\n\nPrzed Tobą sesja treningowa, składająca się z {N_TRN_A_TRIALS} prób.\nNaciśnij klawisz SPACJA aby rozpocząć trening."""
+    instr_trn_B = f"""Czas na kolejny etap. Zasady pozostają te same, z tym że gdy zobaczysz kwadratową obwódkę wokół strzałki, Twoim zadaniem jest NIE naciśnięcie żadnego z klawiszy. Jest to spore utrudnienie.\n\nPrzed Tobą ostatnia sesja treningowa, składająca się z {N_TRN_B_TRIALS} prób.\nNaciśnij klawisz SPACJA aby rozpocząć trening."""
+    instr_exp_pre = f"""To już koniec etapu treningowego. Przed Tobą właściwa część eksperymentu, składają się z {N_EXP_A_BLOCKS} bloków po {N_EXP_A_TRIALS} prób każdy. Między każdym z bloków możliwa jest przerwa. Powodzenia!\nNaciśnij klawisz SPACJA aby rozpocząć test."""
+    instr_exp_inter = f"""Przerwa nr <BREAK_NUMBER> (jeszcze <N_OF_BLOCKS_LEFT> bloków testowych).\nNaciśnij klawisz SPACJA aby kontynuować."""
+    instr_end = """Dziękujemy za udział w badaniu."""
+
+    # INITIALIZATION
     window = visual.Window(
         units="pix",
         color="gray",
         fullscr=False
     )
     window.setMouseVisible(False)
-
     clock = core.Clock()
-
     stim = {
-        "left": visual.TextStim(win=window, text="L", height=40),
-        "right": visual.TextStim(win=window, text="R", height=40)
+        "left": visual.TextStim(win=window, text="←", height=40),
+        "right": visual.TextStim(win=window, text="→", height=40)
     }
     stim_fixation = visual.TextStim(win=window, text="+", height=40)
 
-    inst_tr = visual.TextStim(win=window, text="instrukcja", height=20)
-    inst_exp = visual.TextStim(win=window, text="eksperyment", height=20)
-    inst_end = visual.TextStim(win=window, text="THE END", height=20)
+    # # TRAINING BLOCK 1 - GO trials
+    # show_text(text=instr_trn_A, win=window)
+    # experiment_block(
+    #     N_TRN_A_TRIALS,
+    #     REACTION_KEYS,
+    #     experiment=False,
+    #     fix_stim=stim_fixation,
+    #     fix_time=FIX_TIME,
+    #     win=window
+    # )
 
-    # TRAINING
-    show_text(info=inst_tr, win=window)
-    part_of_experiment(
-        N_TRIALS_TRAINING,
-        REACTION_KEYS,
-        experiment=False,
-        fix_stim=stim_fixation,
-        fix_time=2
-    )
+    # # TRAINING BLOCK 2 - GO + STOP trials
+    # show_text(text=instr_trn_B, win=window)
+    # experiment_block(
+    #     N_TRN_B_TRIALS,
+    #     REACTION_KEYS,
+    #     experiment=False,
+    #     fix_stim=stim_fixation,
+    #     fix_time=FIX_TIME,
+    #     win=window
+    # )
 
-    # EXPERIMENT
-    show_text(info=inst_exp, win=window)
-    part_of_experiment(
-        N_TRIALS_EXPERIMENT,
-        REACTION_KEYS,
-        experiment=True,
-        fix_stim=stim_fixation,
-        fix_time=2
-    )
+    # EXPERIMENT BLOCKS
+    show_text(text=instr_exp_pre, win=window)
+    for j in range(N_EXP_A_BLOCKS):
+        if j and range(1, N_EXP_A_BLOCKS - 1):
+            show_text(
+                instr_exp_inter
+                .replace('<BREAK_NUMBER>', str(j))
+                .replace('<N_OF_BLOCKS_LEFT>', str(N_EXP_A_BLOCKS - j)),
+                win=window
+            )
+        experiment_block(
+            N_EXP_A_TRIALS,
+            REACTION_KEYS,
+            experiment=True,
+            fix_stim=stim_fixation,
+            fix_time=FIX_TIME,
+            win=window
+        )
 
-    # THE END
-    show_text(info=inst_end, win=window)
+    # FINISH
+    show_text(text=instr_end, win=window)
 
-    # RESULTS
+    # SAVE RESULTS
     with open("result.csv", 'w', newline="") as f:
         write = csv.writer(f)
         write.writerows(RESULTS)
