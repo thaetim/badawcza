@@ -20,6 +20,13 @@ from psychopy import visual, core, event
 import random
 import csv
 
+# INSTRUCTIONS
+instr_trn1 = """Twoim zadaniem jest jak najszybsze naciśnięcie klawisza A, gdy zobaczysz strzałkęw lewo, lub klawisza L, gdy zobaczysz strzałkę w prawo. Czasu na decyzję jest niewiele, test wymaga skupienia, szybkich i trafnych reakcji.\n\nPrzed Tobą sesja treningowa, składająca się z 15 prób.\nNaciśnij klawisz SPACJA aby rozpocząć trening."""
+instr_trn2 = """Czas na kolejny etap. Zasady pozostają te same, z tym że gdy zobaczysz kwadratową obwódkę wokół strzałki, Twoim zadaniem jest NIE naciśnięcie żadnego z klawiszy. Jest to spore utrudnienie.\n\nPrzed Tobą ostatnia sesja treningowa, składająca sięz 20 prób.\nNaciśnij klawisz SPACJA aby rozpocząć trening."""
+instr_exp1 = """To już koniec etapu treningowego. Przed Tobą właściwa część eksperymentu, składają się z 6 bloków po 120 prób każdy. Między każdym z bloków możliwa jest przerwa. Powodzenia!\nNaciśnij klawisz SPACJA aby rozpocząć test."""
+instr_exp2 = """Przerwa nr n (jescze 6-n bloków testowych).\nNaciśnij klawisz SPACJA aby kontynuować."""
+instr_end = """Dziękujemy za udział w badaniu."""
+
 def reactions(key_list):
     event.clearEvents()
     keys = event.waitKeys(keyList=key_list)
