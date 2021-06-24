@@ -33,14 +33,14 @@ def show_text(text, win, keys=["space"]):
     reactions(keys)
 
 
-def experiment_block(n_trials_go, n_trials_go_stop, keys, experiment, fix_time, fix_stim, win):
+def experiment_block(n_trials, keys, experiment, fix_time, fix_stim, win, stop_trials_fraction=0):
 
-    if n_trials_go_stop:
-        n_trials = n_trials_go
-    else:
-        n_trials = n_trials_go + n_trials_go_stop
+    stop_delay_min = 100
+    stop_delay_max = 400
+    stop_delay_step = 50
 
     # TODO: ?? przed petla tworzyc randomem sekwencje go/go+stop (tak zeby ulamek stopow sie zgadzal) i w petli juz tylko odpalac po kolei
+    # TODO: czekanie na reakcje albo koniec czasu
     # TODO: opcja na zmiane czasow opoznienia gdy wyhamowanie prawidlowe / nieprawidlowe
 
     for i in range(n_trials):
@@ -58,9 +58,10 @@ def experiment_block(n_trials_go, n_trials_go_stop, keys, experiment, fix_time, 
         win.callOnFlip(clock.reset)
         win.flip()
 
-        if n_trials_go_stop:
-            # STOP STIMULUS
-            core.wait(random.randint(100, 400) / 1000)
+        # STOP STIMULUS
+        if stop_trials_fraction:
+            stop_delay = random.randint(stop_delay_min, stop_delay_max) / 1000
+            core.wait(stop_delay)
             stim_go[stim_type_go].draw()
             stim_stop[stim_type_stop].draw()
             win.callOnFlip(clock.reset)
@@ -69,8 +70,8 @@ def experiment_block(n_trials_go, n_trials_go_stop, keys, experiment, fix_time, 
         key = reactions(keys)
         rt = clock.getTime()
 
-        acc = stim_type_go == key
-        RESULTS.append([i + 1, experiment, acc, rt, stim_type_go, key])
+        acc = (stim_type_go == key)
+        RESULTS.append([i + 1, stim_type_go, stop_delay, rt, key, acc, experiment])
 
 
 if __name__ == "__main__":
@@ -85,7 +86,7 @@ if __name__ == "__main__":
 
     REACTION_KEYS = ["a", "l"]
     RESULTS = [
-        ["NR", "EXPERIMENT", "ACC", "RT", "TRIAL_TYPE", "REACTION"]
+        ["NR", "DIRECTION", "DELAY", "RT", "REACTION", "ACC", "EXPERIMENT"]
     ]
 
     # INSTRUCTION TEXTS
