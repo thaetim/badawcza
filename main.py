@@ -23,7 +23,11 @@ import csv
 
 def reactions(key_list, max_reaction_time=float("inf")):
     event.clearEvents()
-    keys = event.waitKeys(max_reaction_time, keyList=key_list)
+    keys = event.waitKeys(max_reaction_time, keyList=key_list.append("escape"))
+    if keys and keys[0] == "escape":
+        exit()
+    if keys:
+        print(keys[0])
     return keys[0] if keys else None
 
 
@@ -35,11 +39,7 @@ def show_text(text, win, keys=["space"]):
 
 def experiment_block(n_trials, keys, experiment, fix_time, fix_stim, win, stop_trials_fraction=0):
 
-    stop_delay = 150
-
-    stop_delay_min = 100
-    stop_delay_max = 400
-    stop_delay_step = 50
+    stop_delay = INITIAL_STOP_DELAY
 
     trials_stop_types = [None] * int((1-stop_trials_fraction)*n_trials)
     for stop_key in (stim_stop.keys()):
@@ -53,7 +53,7 @@ def experiment_block(n_trials, keys, experiment, fix_time, fix_stim, win, stop_t
         # FIXATION STIMULUS
         fix_stim.draw()
         win.flip()
-        core.wait(fix_time)
+        core.wait(fix_time/1000)
 
         # GO STIMULUS
         stim_go[stim_type_go].draw()
@@ -67,16 +67,16 @@ def experiment_block(n_trials, keys, experiment, fix_time, fix_stim, win, stop_t
             stim_stop[stop_type].draw()
             win.flip()
 
-        key = reactions(keys, MAX_REACTION_TIME)
+        key = reactions(keys, MAX_REACTION_TIME/1000)
         rt = clock.getTime() if key else None
 
         acc = (stim_type_go == key)
 
         if stop_type:
             if acc:
-                stop_delay = max(stop_delay_min, stop_delay-stop_delay_step)
+                stop_delay = max(MIN_STOP_DELAY, stop_delay-STOP_DELAY_STEP)
             else:
-                stop_delay = min(stop_delay_max, stop_delay+stop_delay_step)
+                stop_delay = min(MAX_STOP_DELAY, stop_delay+STOP_DELAY_STEP)
 
         RESULTS.append([i + 1, stim_type_go, stop_delay if stop_type else None, rt, key, acc, experiment])
 
@@ -84,13 +84,18 @@ def experiment_block(n_trials, keys, experiment, fix_time, fix_stim, win, stop_t
 if __name__ == "__main__":
 
     # CONFIGURATION
-    FIX_TIME = 0.5      # FIXME: 2.0
-    MAX_REACTION_TIME = 1
+    FIX_TIME = 2000
+    MAX_REACTION_TIME = 1000
 
-    N_TRN_A_TRIALS = 4  # FIXME: 15
-    N_TRN_B_TRIALS = 9  # FIXME: 27
-    N_EXP_A_BLOCKS = 3  # FIXME: 6
-    N_EXP_A_TRIALS = 9  # FIXME: 120
+    MIN_STOP_DELAY = 150
+    MAX_STOP_DELAY = 400
+    STOP_DELAY_STEP = 50
+    INITIAL_STOP_DELAY = 150
+
+    N_TRN_A_TRIALS = 15
+    N_TRN_B_TRIALS = 27
+    N_EXP_A_BLOCKS = 6
+    N_EXP_A_TRIALS = 120
 
     REACTION_KEYS = ["a", "l"]
     RESULTS = [
@@ -124,16 +129,15 @@ if __name__ == "__main__":
     stim_fix = visual.TextStim(win=window, text="+", height=40)
 
     # # TRAINING BLOCK 1 - GO trials
-    # show_text(text=instr_trn_A, win=window)
-    # experiment_block(
-    #     N_TRN_A_TRIALS,
-    #     0,
-    #     REACTION_KEYS,
-    #     experiment=False,
-    #     fix_stim=stim_fix,
-    #     fix_time=FIX_TIME,
-    #     win=window
-    # )
+    show_text(text=instr_trn_A, win=window)
+    experiment_block(
+        n_trials=N_TRN_A_TRIALS,
+        keys=REACTION_KEYS,
+        experiment=False,
+        fix_stim=stim_fix,
+        fix_time=FIX_TIME,
+        win=window
+    )
 
     # TRAINING BLOCK 2 - GO + STOP trials
     show_text(text=instr_trn_B, win=window)
@@ -147,24 +151,25 @@ if __name__ == "__main__":
         stop_trials_fraction=1/3
     )
 
-    # # EXPERIMENT BLOCKS
-    # show_text(text=instr_exp_pre, win=window)
-    # for j in range(N_EXP_A_BLOCKS):
-    #     if j and range(1, N_EXP_A_BLOCKS - 1):
-    #         show_text(
-    #             instr_exp_inter
-    #             .replace('<BREAK_NUMBER>', str(j))
-    #             .replace('<N_OF_BLOCKS_LEFT>', str(N_EXP_A_BLOCKS - j)),
-    #             win=window
-    #         )
-    #     experiment_block(
-    #         N_EXP_A_TRIALS,
-    #         REACTION_KEYS,
-    #         experiment=True,
-    #         fix_stim=stim_fix,
-    #         fix_time=FIX_TIME,
-    #         win=window
-    #     )
+    # EXPERIMENT BLOCKS
+    show_text(text=instr_exp_pre, win=window)
+    for j in range(N_EXP_A_BLOCKS):
+        if j and range(1, N_EXP_A_BLOCKS - 1):
+            show_text(
+                instr_exp_inter
+                .replace('<BREAK_NUMBER>', str(j))
+                .replace('<N_OF_BLOCKS_LEFT>', str(N_EXP_A_BLOCKS - j)),
+                win=window
+            )
+        experiment_block(
+            n_trials=N_EXP_A_TRIALS,
+            keys=REACTION_KEYS,
+            experiment=False,
+            fix_stim=stim_fix,
+            fix_time=FIX_TIME,
+            win=window,
+            stop_trials_fraction=1/3
+        )
 
     # FINISH
     show_text(text=instr_end, win=window)
