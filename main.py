@@ -191,7 +191,7 @@ if __name__ == "__main__":
             fix_stim=stim_fix,
             fix_time=FIX_TIME,
             win=window,
-            stop_trials_fraction=1/3
+            stop_trials_fraction=.25
         )
 
     # FINISH
