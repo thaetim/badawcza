@@ -1,27 +1,24 @@
 # PROJEKT PROCEDURY BADAWCZEJ
-# wybor procedury, np Stroop, Posner, Go-No-Go, stop-signal itp
-# opis do czego to ma być (po krotce), do czego sluzyc, co badac, jak
-# specyfikacja: dokladny opis procedury, ile triali, jaka kolejnosc, co przez ile trwa wyswietla
-# pisanie procedury miesko projektu glowna czesc
-# test na dwoch trzech osobach - czy zwraca dobre pliki dane i dziala
-# obrona projektu - wylumaczyc jak dla czego dziala, specka i kod, kto za co odpowiadal
+# https://github.com/thaetim/badawcza
 
-# krotki opis i temat: zaakceptowany do piatku (wyslac propo we wt albo sr) do 23:59 14.05
-# 31.05 specyfikacja skonczona
-#   pisanie proceur, testowanie
-
-# obrona projektu do konca czerwca (sami ustalic termin) (trwa 30min okolo)
-# 24h przed obrona - dostarczyc podzial pracy i projekt
-
-# https://www.psytoolkit.org/experiment-library/stopsignal.html
-# https://www.millisecond.com/download/library/stopsignaltask/
-
+from typing import Optional
 from psychopy import visual, core, event
+from psychopy.visual.text import TextStim
+from psychopy.visual.window import Window
 import random
 import csv
 
 
-def reactions(key_list, max_reaction_time=float("inf")):
+def reactions(key_list: "list[str]", max_reaction_time: float = float("inf")) -> Optional[str]:
+    """Waits for one of the keys in a list and returns the first one pressed. Exits the program if Escape pressed.
+
+    Args:
+        key_list (list[str]): List of keys to wait for.
+        max_reaction_time (float, optional): Timeout in seconds. Defaults to infinite.
+
+    Returns:
+        Optional[str]: First pressed key or None if timeouts.
+    """
     event.clearEvents()
     keys = event.waitKeys(max_reaction_time, keyList=key_list.append("escape"))
     if keys and keys[0] == "escape":
@@ -31,13 +28,39 @@ def reactions(key_list, max_reaction_time=float("inf")):
     return keys[0] if keys else None
 
 
-def show_text(text, win, keys=["space"]):
+def show_text(text: str, win: Window, keys: "list[str]" = ["space"]) -> None:
+    """Display a text on the screen and waits for a key press.
+
+    Args:
+        text (str): Text to show.
+        win (Window): Window object to display the text on.
+        keys (list[str], optional): List of keys to wait for. Defaults to ["space"].
+    """
     visual.TextStim(win=window, text=text, height=20).draw()
     win.flip()
     reactions(keys)
 
 
-def experiment_block(n_trials, keys, experiment, fix_time, fix_stim, win, stop_trials_fraction=0):
+def experiment_block(
+    n_trials: int,
+    keys: "list[str]",
+    experiment: bool,
+    fix_time: int,
+    fix_stim: TextStim,
+    win: Window,
+    stop_trials_fraction: float = 0
+    ) -> None:
+    """Conducts a single block of the experiment, handling user input and output.
+
+    Args:
+        n_trials (int): Number of trials in the block.
+        keys (list[str]): List of reaction keys.
+        experiment (bool): True if block is an experiment block.
+        fix_time (int): Fixation display time in ms.
+        fix_stim (TextStim): TextStim of the fixation symbol.
+        win (Window): Window object to draw on.
+        stop_trials_fraction (float, optional): Fraction of trials that are to be STOP trials. Defaults to 0.
+    """
 
     stop_delay = INITIAL_STOP_DELAY
 
