@@ -21,10 +21,10 @@ import random
 import csv
 
 
-def reactions(key_list):
+def reactions(key_list, max_reaction_time=float("inf")):
     event.clearEvents()
-    keys = event.waitKeys(keyList=key_list)
-    return keys[0]
+    keys = event.waitKeys(max_reaction_time, keyList=key_list)
+    return keys[0] if keys else None
 
 
 def show_text(text, win, keys=["space"]):
@@ -35,17 +35,19 @@ def show_text(text, win, keys=["space"]):
 
 def experiment_block(n_trials, keys, experiment, fix_time, fix_stim, win, stop_trials_fraction=0):
 
+    stop_delay = 150
+
     stop_delay_min = 100
     stop_delay_max = 400
     stop_delay_step = 50
 
-    # TODO: ?? przed petla tworzyc randomem sekwencje go/go+stop (tak zeby ulamek stopow sie zgadzal) i w petli juz tylko odpalac po kolei
-    # TODO: czekanie na reakcje albo koniec czasu
-    # TODO: opcja na zmiane czasow opoznienia gdy wyhamowanie prawidlowe / nieprawidlowe
+    trials_stop_types = [None] * int((1-stop_trials_fraction)*n_trials)
+    for stop_key in (stim_stop.keys()):
+        trials_stop_types += [stop_key] * int((stop_trials_fraction/len(stim_stop)*n_trials))
+    random.shuffle(trials_stop_types)
 
-    for i in range(n_trials):
+    for i, stop_type in enumerate(trials_stop_types):
         stim_type_go = random.choice(list(stim_go.keys()))
-        stim_type_stop = random.choice(list(stim_stop.keys()))
         print(stim_type_go)
 
         # FIXATION STIMULUS
@@ -59,25 +61,31 @@ def experiment_block(n_trials, keys, experiment, fix_time, fix_stim, win, stop_t
         win.flip()
 
         # STOP STIMULUS
-        if stop_trials_fraction:
-            stop_delay = random.randint(stop_delay_min, stop_delay_max) / 1000
-            core.wait(stop_delay)
+        if stop_type:
+            core.wait(stop_delay/1000)
             stim_go[stim_type_go].draw()
-            stim_stop[stim_type_stop].draw()
-            win.callOnFlip(clock.reset)
+            stim_stop[stop_type].draw()
             win.flip()
 
-        key = reactions(keys)
-        rt = clock.getTime()
+        key = reactions(keys, MAX_REACTION_TIME)
+        rt = clock.getTime() if key else None
 
         acc = (stim_type_go == key)
-        RESULTS.append([i + 1, stim_type_go, stop_delay, rt, key, acc, experiment])
+
+        if stop_type:
+            if acc:
+                stop_delay = max(stop_delay_min, stop_delay-stop_delay_step)
+            else:
+                stop_delay = min(stop_delay_max, stop_delay+stop_delay_step)
+
+        RESULTS.append([i + 1, stim_type_go, stop_delay if stop_type else None, rt, key, acc, experiment])
 
 
 if __name__ == "__main__":
 
     # CONFIGURATION
     FIX_TIME = 0.5      # FIXME: 2.0
+    MAX_REACTION_TIME = 1
 
     N_TRN_A_TRIALS = 4  # FIXME: 15
     N_TRN_B_TRIALS = 9  # FIXME: 27
@@ -109,7 +117,9 @@ if __name__ == "__main__":
         "right": visual.TextStim(win=window, text="→", height=40)
     }
     stim_stop = {
-        "red": visual.rect.Rect(win=window, units='pix', pos=(0, -5), size=60, lineColor="red", lineWidth=2.0)
+        "red": visual.rect.Rect(win=window, units='pix', pos=(0, -5), size=60, lineColor="red", lineWidth=2.0),
+        "green": visual.rect.Rect(win=window, units='pix', pos=(0, -5), size=60, lineColor="green", lineWidth=2.0),
+        "black": visual.rect.Rect(win=window, units='pix', pos=(0, -5), size=60, lineColor="black", lineWidth=2.0)
     }
     stim_fix = visual.TextStim(win=window, text="+", height=40)
 
@@ -128,13 +138,13 @@ if __name__ == "__main__":
     # TRAINING BLOCK 2 - GO + STOP trials
     show_text(text=instr_trn_B, win=window)
     experiment_block(
-        N_TRN_B_TRIALS,
-        3,
-        REACTION_KEYS,
+        n_trials=N_TRN_B_TRIALS,
+        keys=REACTION_KEYS,
         experiment=False,
         fix_stim=stim_fix,
         fix_time=FIX_TIME,
-        win=window
+        win=window,
+        stop_trials_fraction=1/3
     )
 
     # # EXPERIMENT BLOCKS
