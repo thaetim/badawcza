@@ -14,7 +14,7 @@ def reactions(key_list: "list[str]", max_reaction_time: float = float("inf")) ->
 
     Args:
         key_list (list[str]): List of keys to wait for.
-        max_reaction_time (float, optional): Timeout in seconds. Defaults to infinite.
+        max_reaction_time (float, optional): Timeout in ms. Defaults to infinite.
 
     Returns:
         Optional[str]: First pressed key or None if timeouts.
