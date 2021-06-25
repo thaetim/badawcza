@@ -136,7 +136,7 @@ if __name__ == "__main__":
     window = visual.Window(
         units="pix",
         color="gray",
-        fullscr=False
+        fullscr=True
     )
     window.setMouseVisible(False)
     clock = core.Clock()
