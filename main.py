@@ -125,7 +125,7 @@ def experiment_block(
 if __name__ == "__main__":
 
     # CONFIGURATION
-    FIX_TIME = 2000
+    FIX_TIME = 1000
     MAX_REACTION_TIME = 1000
 
     MIN_STOP_DELAY = 100
