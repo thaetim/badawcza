@@ -108,9 +108,9 @@ def experiment_block(
             win.flip()
             core.wait(1)
 
-        # EMPTY SCREEN
-        win.flip()
-        core.wait(random.randrange(900, 1100) / 1000)
+        # # EMPTY SCREEN #FIXME
+        # win.flip()
+        # core.wait(random.randrange(900, 1100) / 1000)
 
         # STOP DELAY ADAPTATION
         if stop_type:
@@ -125,7 +125,7 @@ def experiment_block(
 if __name__ == "__main__":
 
     # CONFIGURATION
-    FIX_TIME = 1000
+    FIX_TIME = 500
     MAX_REACTION_TIME = 1000
 
     MIN_STOP_DELAY = 100
@@ -133,10 +133,10 @@ if __name__ == "__main__":
     STOP_DELAY_STEP = 50
     INITIAL_STOP_DELAY = 150
 
-    N_TRN_A_TRIALS = 15
-    N_TRN_B_TRIALS = 27
-    N_EXP_A_BLOCKS = 6
-    N_EXP_A_TRIALS = 120
+    N_TRN_A_TRIALS = 4
+    N_TRN_B_TRIALS = 9
+    N_EXP_A_BLOCKS = 3
+    N_EXP_A_TRIALS = 30
 
     REACTION_KEYS = ["a", "l"]
     RESULTS = [
