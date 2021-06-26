@@ -2,6 +2,7 @@
 # https://github.com/thaetim/badawcza
 
 from typing import Optional
+from numpy.lib.twodim_base import tri
 from psychopy import visual, core, event
 from psychopy.visual.text import TextStim
 from psychopy.visual.window import Window
@@ -59,17 +60,21 @@ def experiment_block(
         experiment (bool): True if block is an experiment block.
         fix_time (int): Fixation display time in ms.
         fix_stim (TextStim): TextStim of the fixation symbol.
+        err_stim (TextStim): TextStim of the error screen.
         win (Window): Window object to draw on.
-        stop_trials_fraction (float, optional): Fraction of trials that are to be STOP trials. Defaults to 0.
+        stop_trials_fraction (float, optional): Fraction of trials that are to be STOP trials. Maximum 0.5. Defaults to 0.
     """
 
     stop_delay = INITIAL_STOP_DELAY
 
-    trials_stop_types = [None] * int((1 - stop_trials_fraction) * n_trials)  # to /2 i potem dodac co drugi el None ?
+    trials_stop_types_tmp = [None] * int((0.5 - stop_trials_fraction) * n_trials)
     for stop_key in (stim_stop.keys()):
-        trials_stop_types += [stop_key] * int((stop_trials_fraction / len(stim_stop) * n_trials))
-    # TODO: ensure here that there are no two stop trials after one another
-    random.shuffle(trials_stop_types)
+        trials_stop_types_tmp += [stop_key] * int((stop_trials_fraction / len(stim_stop) * n_trials))
+    random.shuffle(trials_stop_types_tmp)
+    trials_stop_types = []
+    for tst in trials_stop_types_tmp:
+        trials_stop_types.append(tst)
+        trials_stop_types.append(None)
 
     for i, stop_type in enumerate(trials_stop_types):
         stim_type_go = random.choice(list(stim_go.keys()))
@@ -95,7 +100,7 @@ def experiment_block(
         key = reactions(keys, MAX_REACTION_TIME / 1000)
         rt = clock.getTime() if key else None
 
-        acc = (stim_type_go == key) or (stop_type and not key)
+        acc = (not stop_type and stim_type_go == key) or (stop_type and not key)
 
         # ERROR MESSAGE
         if not acc:
@@ -154,8 +159,8 @@ if __name__ == "__main__":
     window.setMouseVisible(False)
     clock = core.Clock()
     stim_go = {
-        "left": visual.TextStim(win=window, text="←", height=40),
-        "right": visual.TextStim(win=window, text="→", height=40)
+        "a": visual.TextStim(win=window, text="←", height=40),
+        "l": visual.TextStim(win=window, text="→", height=40)
     }
     stim_stop = {
         "red": visual.rect.Rect(win=window, units='pix', pos=(0, -5), size=60, lineColor="red", lineWidth=2.0),
