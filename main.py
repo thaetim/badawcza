@@ -47,9 +47,10 @@ def experiment_block(
     experiment: bool,
     fix_time: int,
     fix_stim: TextStim,
+    err_stim: TextStim,
     win: Window,
     stop_trials_fraction: float = 0
-    ) -> None:
+) -> None:
     """Conducts a single block of the experiment, handling user input and output.
 
     Args:
@@ -64,9 +65,10 @@ def experiment_block(
 
     stop_delay = INITIAL_STOP_DELAY
 
-    trials_stop_types = [None] * int((1-stop_trials_fraction)*n_trials)
+    trials_stop_types = [None] * int((1 - stop_trials_fraction) * n_trials)  # to /2 i potem dodac co drugi el None ?
     for stop_key in (stim_stop.keys()):
-        trials_stop_types += [stop_key] * int((stop_trials_fraction/len(stim_stop)*n_trials))
+        trials_stop_types += [stop_key] * int((stop_trials_fraction / len(stim_stop) * n_trials))
+    # TODO: ensure here that there are no two stop trials after one another
     random.shuffle(trials_stop_types)
 
     for i, stop_type in enumerate(trials_stop_types):
@@ -76,7 +78,7 @@ def experiment_block(
         # FIXATION STIMULUS
         fix_stim.draw()
         win.flip()
-        core.wait(fix_time/1000)
+        core.wait(fix_time / 1000)
 
         # GO STIMULUS
         stim_go[stim_type_go].draw()
@@ -85,21 +87,32 @@ def experiment_block(
 
         # STOP STIMULUS
         if stop_type:
-            core.wait(stop_delay/1000)
+            core.wait(stop_delay / 1000)
             stim_go[stim_type_go].draw()
             stim_stop[stop_type].draw()
             win.flip()
 
-        key = reactions(keys, MAX_REACTION_TIME/1000)
+        key = reactions(keys, MAX_REACTION_TIME / 1000)
         rt = clock.getTime() if key else None
 
-        acc = (stim_type_go == key)
+        acc = (stim_type_go == key) or (stop_type and not key)
 
+        # ERROR MESSAGE
+        if not acc:
+            err_stim.draw()
+            win.flip()
+            core.wait(1)
+
+        # EMPTY SCREEN
+        win.flip()
+        core.wait(random.randrange(900, 1100) / 1000)
+
+        # STOP DELAY ADAPTATION
         if stop_type:
             if acc:
-                stop_delay = max(MIN_STOP_DELAY, stop_delay-STOP_DELAY_STEP)
+                stop_delay = max(MIN_STOP_DELAY, stop_delay - STOP_DELAY_STEP)
             else:
-                stop_delay = min(MAX_STOP_DELAY, stop_delay+STOP_DELAY_STEP)
+                stop_delay = min(MAX_STOP_DELAY, stop_delay + STOP_DELAY_STEP)
 
         RESULTS.append([i + 1, stim_type_go, stop_delay if stop_type else None, rt, key, acc, experiment])
 
@@ -110,7 +123,7 @@ if __name__ == "__main__":
     FIX_TIME = 2000
     MAX_REACTION_TIME = 1000
 
-    MIN_STOP_DELAY = 150
+    MIN_STOP_DELAY = 100
     MAX_STOP_DELAY = 400
     STOP_DELAY_STEP = 50
     INITIAL_STOP_DELAY = 150
@@ -150,6 +163,7 @@ if __name__ == "__main__":
         "black": visual.rect.Rect(win=window, units='pix', pos=(0, -5), size=60, lineColor="black", lineWidth=2.0)
     }
     stim_fix = visual.TextStim(win=window, text="+", height=40)
+    stim_err = visual.TextStim(win=window, text="BŁĄD", height=40)
 
     # # TRAINING BLOCK 1 - GO trials
     show_text(text=instr_trn_A, win=window)
@@ -159,6 +173,7 @@ if __name__ == "__main__":
         experiment=False,
         fix_stim=stim_fix,
         fix_time=FIX_TIME,
+        err_stim=stim_err,
         win=window
     )
 
@@ -170,8 +185,9 @@ if __name__ == "__main__":
         experiment=False,
         fix_stim=stim_fix,
         fix_time=FIX_TIME,
+        err_stim=stim_err,
         win=window,
-        stop_trials_fraction=1/3
+        stop_trials_fraction=1 / 3
     )
 
     # EXPERIMENT BLOCKS
@@ -187,9 +203,10 @@ if __name__ == "__main__":
         experiment_block(
             n_trials=N_EXP_A_TRIALS,
             keys=REACTION_KEYS,
-            experiment=False,
+            experiment=True,
             fix_stim=stim_fix,
             fix_time=FIX_TIME,
+            err_stim=stim_err,
             win=window,
             stop_trials_fraction=.25
         )
