@@ -2,7 +2,6 @@
 # https://github.com/thaetim/badawcza
 
 from typing import Optional
-from numpy.lib.twodim_base import tri
 from psychopy import visual, core, event
 from psychopy.visual.text import TextStim
 from psychopy.visual.window import Window
@@ -100,7 +99,7 @@ def experiment_block(
         key = reactions(keys, MAX_REACTION_TIME / 1000)
         rt = clock.getTime() if key else None
 
-        acc = (not stop_type and stim_type_go == key) or (stop_type and not key)
+        acc = (stop_type is None and stim_type_go == key) or (stop_type is not None and key is None)
 
         # ERROR MESSAGE
         if not acc:
@@ -108,7 +107,7 @@ def experiment_block(
             win.flip()
             core.wait(1)
 
-        # # EMPTY SCREEN #FIXME
+        # # EMPTY SCREEN
         # win.flip()
         # core.wait(random.randrange(900, 1100) / 1000)
 
@@ -119,7 +118,7 @@ def experiment_block(
             else:
                 stop_delay = min(MAX_STOP_DELAY, stop_delay + STOP_DELAY_STEP)
 
-        RESULTS.append([i + 1, stim_type_go, stop_delay if stop_type else None, rt, key, acc, experiment])
+        RESULTS.append([i + 1, stim_type_go, stop_delay if stop_type else None, stop_type, rt, key, acc, experiment])
 
 
 if __name__ == "__main__":
@@ -140,7 +139,7 @@ if __name__ == "__main__":
 
     REACTION_KEYS = ["a", "l"]
     RESULTS = [
-        ["NR", "DIRECTION", "DELAY", "RT", "REACTION", "ACC", "EXPERIMENT"]
+        ["NR", "DIRECTION", "DELAY", "COLOR", "RT", "REACTION", "ACC", "EXPERIMENT"]
     ]
 
     # INSTRUCTION TEXTS
@@ -154,7 +153,7 @@ if __name__ == "__main__":
     window = visual.Window(
         units="pix",
         color="gray",
-        fullscr=True
+        fullscr=False  # FIXME:
     )
     window.setMouseVisible(False)
     clock = core.Clock()
