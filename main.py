@@ -147,9 +147,9 @@ def experiment_block(
             win.flip()
             core.wait(1)
 
-        # # EMPTY SCREEN #FIXME:
-        # win.flip()
-        # core.wait(random.randrange(900, 1100) / 1000)
+        # EMPTY SCREEN
+        win.flip()
+        core.wait(random.randrange(900, 1100) / 1000)
 
         # STOP DELAY ADAPTATION
         if stop_type:
