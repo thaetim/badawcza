@@ -181,7 +181,7 @@ if __name__ == "__main__":
     ]
 
     # INSTRUCTION TEXTS
-    instr_trn_A = f"""Twoim zadaniem jest jak najszybsze naciśnięcie klawisza {REACTION_KEYS[0]}, gdy zobaczysz strzałkę w lewo, lub klawisza {REACTION_KEYS[1]}, gdy zobaczysz strzałkę w prawo. Czasu na decyzję jest niewiele, test wymaga skupienia, szybkich i trafnych reakcji.\n\nPrzed Tobą sesja treningowa, składająca się z {N_TRN_A_TRIALS} prób.\nNaciśnij klawisz SPACJA aby rozpocząć trening."""
+    instr_trn_A = f"""Twoim zadaniem jest jak najszybsze naciśnięcie klawisza {REACTION_KEYS[0].upper()}, gdy zobaczysz strzałkę w lewo, lub klawisza {REACTION_KEYS[1].upper()}, gdy zobaczysz strzałkę w prawo. Czasu na decyzję jest niewiele, test wymaga skupienia, szybkich i trafnych reakcji.\n\nPrzed Tobą sesja treningowa, składająca się z {N_TRN_A_TRIALS} prób.\nNaciśnij klawisz SPACJA aby rozpocząć trening."""
     instr_trn_B = f"""Czas na kolejny etap. Zasady pozostają te same, z tym że gdy zobaczysz kwadratową obwódkę wokół strzałki, Twoim zadaniem jest NIE naciśnięcie żadnego z klawiszy. Jest to spore utrudnienie.\n\nPrzed Tobą ostatnia sesja treningowa, składająca się z {N_TRN_B_TRIALS} prób.\nNaciśnij klawisz SPACJA aby rozpocząć trening."""
     instr_exp_pre = f"""To już koniec etapu treningowego. Przed Tobą właściwa część eksperymentu, składają się z {N_EXP_A_BLOCKS} bloków po {N_EXP_A_TRIALS} prób każdy. Między każdym z bloków możliwa jest przerwa. Powodzenia!\nNaciśnij klawisz SPACJA aby rozpocząć test."""
     instr_exp_inter = f"""Przerwa nr <BREAK_NUMBER> (jeszcze <N_OF_BLOCKS_LEFT> bloków testowych).\nNaciśnij klawisz SPACJA aby kontynuować."""
