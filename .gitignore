@@ -135,4 +135,4 @@ dmypy.json
 .vscode/
 
 # Default ouput file
-result.csv
+result*.csv

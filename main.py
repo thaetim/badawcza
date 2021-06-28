@@ -7,6 +7,46 @@ from psychopy.visual.text import TextStim
 from psychopy.visual.window import Window
 import random
 import csv
+import yaml
+import os.path
+
+
+def load_config(yaml_file: str = './config.yaml') -> dict:
+    """Loads the configuration values from a YAML file. If there is no such file or the configuration file is empty, a file with default values (as in specification) is created and loaded.
+
+    Args:
+        yaml_file (str): Path to the YAML configuration file. Defaults to './config.yaml'
+
+    Returns:
+        dict: A dictionary with configuration values.
+    """
+
+    def default_config():
+        config = {
+            "FIX_TIME": 1000,
+            "MAX_REACTION_TIME": 1000,
+            "MIN_STOP_DELAY": 100,
+            "MAX_STOP_DELAY": 400,
+            "STOP_DELAY_STEP": 50,
+            "INITIAL_STOP_DELAY": 150,
+            "N_TRN_A_TRIALS": 15,
+            "N_TRN_B_TRIALS": 27,
+            "N_EXP_A_BLOCKS": 6,
+            "N_EXP_A_TRIALS": 120,
+            "REACTION_KEYS": ["a", "l"]
+        }
+        with open(yaml_file, 'w') as f:
+            f.write(yaml.dump(config))
+
+    if os.path.isfile(yaml_file):
+        with open(yaml_file, 'r') as f:
+            config = yaml.load(f.read())
+        if not config:
+            config = default_config()
+    else:
+        config = default_config()
+
+    return config
 
 
 def reactions(key_list: "list[str]", max_reaction_time: float = float("inf")) -> Optional[str]:
@@ -107,9 +147,9 @@ def experiment_block(
             win.flip()
             core.wait(1)
 
-        # EMPTY SCREEN
-        win.flip()
-        core.wait(random.randrange(900, 1100) / 1000)
+        # # EMPTY SCREEN #FIXME:
+        # win.flip()
+        # core.wait(random.randrange(900, 1100) / 1000)
 
         # STOP DELAY ADAPTATION
         if stop_type:
@@ -124,20 +164,18 @@ def experiment_block(
 if __name__ == "__main__":
 
     # CONFIGURATION
-    FIX_TIME = 1000
-    MAX_REACTION_TIME = 1000
-
-    MIN_STOP_DELAY = 100
-    MAX_STOP_DELAY = 400
-    STOP_DELAY_STEP = 50
-    INITIAL_STOP_DELAY = 150
-
-    N_TRN_A_TRIALS = 15
-    N_TRN_B_TRIALS = 27
-    N_EXP_A_BLOCKS = 6
-    N_EXP_A_TRIALS = 120
-
-    REACTION_KEYS = ["a", "l"]
+    cfg = load_config('./config.yaml')
+    FIX_TIME = cfg["FIX_TIME"]
+    MAX_REACTION_TIME = cfg["MAX_REACTION_TIME"]
+    MIN_STOP_DELAY = cfg["MIN_STOP_DELAY"]
+    MAX_STOP_DELAY = cfg["MAX_STOP_DELAY"]
+    STOP_DELAY_STEP = cfg["STOP_DELAY_STEP"]
+    INITIAL_STOP_DELAY = cfg["INITIAL_STOP_DELAY"]
+    N_TRN_A_TRIALS = cfg["N_TRN_A_TRIALS"]
+    N_TRN_B_TRIALS = cfg["N_TRN_B_TRIALS"]
+    N_EXP_A_BLOCKS = cfg["N_EXP_A_BLOCKS"]
+    N_EXP_A_TRIALS = cfg["N_EXP_A_TRIALS"]
+    REACTION_KEYS = cfg["REACTION_KEYS"]
     RESULTS = [
         ["NR", "DIRECTION", "DELAY", "COLOR", "RT", "REACTION", "ACC", "EXPERIMENT"]
     ]
@@ -158,8 +196,8 @@ if __name__ == "__main__":
     window.setMouseVisible(False)
     clock = core.Clock()
     stim_go = {
-        "a": visual.TextStim(win=window, text="←", height=40),
-        "l": visual.TextStim(win=window, text="→", height=40)
+        REACTION_KEYS[0]: visual.TextStim(win=window, text="←", height=40),
+        REACTION_KEYS[1]: visual.TextStim(win=window, text="→", height=40)
     }
     stim_stop = {
         "red": visual.rect.Rect(win=window, units='pix', pos=(0, -5), size=60, lineColor="red", lineWidth=2.0),
