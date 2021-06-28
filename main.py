@@ -1,4 +1,4 @@
-# PROJEKT PROCEDURY BADAWCZEJ
+# RESEARCH PROCEDURE PROJECT
 # https://github.com/thaetim/badawcza
 
 from typing import Optional
